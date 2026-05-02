@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/MailCapture/MailCapture.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/MailCapture.Tests/MailCapture.Tests.csproj" />
+  </Folder>
+</Solution>

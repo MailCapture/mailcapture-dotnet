@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <PackageId>MailCapture</PackageId>
+    <Version>0.1.0</Version>
+    <Description>Official C# SDK for the MailCapture email testing API</Description>
+    <PackageHomePage>https://mailcapture.app</PackageHomePage>
+    <Authors>MailCapture</Authors>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+  </PropertyGroup>
+</Project>
