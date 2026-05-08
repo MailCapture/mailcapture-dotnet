@@ -16,9 +16,9 @@ public class WaitOptions
 {
     /// <summary>
     /// Total time to wait for an email.
-    /// Default: 30 seconds.
+    /// Default: 60 seconds.
     /// </summary>
-    public TimeSpan Timeout { get; init; } = TimeSpan.FromSeconds(30);
+    public TimeSpan Timeout { get; init; } = TimeSpan.FromSeconds(60);
 
     /// <summary>
     /// Per-poll server timeout (max 30 seconds).

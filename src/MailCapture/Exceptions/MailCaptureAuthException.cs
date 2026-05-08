@@ -22,7 +22,7 @@ public class MailCaptureAuthException : MailCaptureException
         var hint = detail is not null ? $"Server said: \"{detail}\"." : "Your API key was rejected.";
         return $"Authentication failed. {hint} " +
                "Make sure your key is valid and has not been revoked. " +
-               "Keys look like: mc_live_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx. " +
+               "Keys look like: mc_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx. " +
                "Find your keys at https://mailcapture.app/admin/api-keys";
     }
 }
