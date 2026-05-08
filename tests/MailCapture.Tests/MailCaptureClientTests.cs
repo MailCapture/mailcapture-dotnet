@@ -10,7 +10,7 @@ namespace MailCapture.Tests;
 public class MailCaptureClientTests
 {
     private static MailCaptureClient MakeClient(MockHttpHandler handler) =>
-        new("mc_live_test", httpClient: new HttpClient(handler));
+        new("mc_testkey", httpClient: new HttpClient(handler));
 
     // ─── Constructor ─────────────────────────────────────────────────────────
 
@@ -29,7 +29,7 @@ public class MailCaptureClientTests
         try
         {
             _ = new MailCaptureClient("bad_key_format");
-            Assert.Contains("mc_live_", sw.ToString());
+            Assert.Contains("mc_", sw.ToString());
         }
         finally { Console.SetError(originalErr); }
     }
@@ -42,7 +42,7 @@ public class MailCaptureClientTests
         Console.SetError(sw);
         try
         {
-            _ = new MailCaptureClient("mc_live_test");
+            _ = new MailCaptureClient("mc_testkey");
             Assert.Empty(sw.ToString());
         }
         finally { Console.SetError(originalErr); }
@@ -51,7 +51,7 @@ public class MailCaptureClientTests
     [Fact]
     public void Constructor_UsernamePreset()
     {
-        using var mc = new MailCaptureClient("mc_live_test",
+        using var mc = new MailCaptureClient("mc_testkey",
             new MailCaptureClientOptions { Username = "alice" });
         Assert.Equal("alice", mc.Username);
         Assert.Equal("alice-signup@mailcapture.app", mc.Address("signup"));
@@ -91,7 +91,7 @@ public class MailCaptureClientTests
         await mc.PingAsync();
 
         var req = handler.Requests[0];
-        Assert.Equal("mc_live_test", req.Headers.GetValues("X-API-Key").First());
+        Assert.Equal("mc_testkey", req.Headers.GetValues("X-API-Key").First());
     }
 
     [Fact]
@@ -104,7 +104,7 @@ public class MailCaptureClientTests
         var ex = await Assert.ThrowsAsync<MailCaptureAuthException>(() => mc.PingAsync());
         Assert.Equal("UNAUTHORIZED", ex.ErrorCode);
         Assert.Contains("Authentication failed", ex.Message);
-        Assert.Contains("mc_live_", ex.Message);
+        Assert.Contains("mc_", ex.Message);
     }
 
     // ─── Address ──────────────────────────────────────────────────────────────
@@ -112,7 +112,7 @@ public class MailCaptureClientTests
     [Fact]
     public void Address_ThrowsBeforePing()
     {
-        using var mc = new MailCaptureClient("mc_live_test");
+        using var mc = new MailCaptureClient("mc_testkey");
         Assert.Throws<InvalidOperationException>(() => mc.Address("signup"));
     }
 
@@ -207,7 +207,7 @@ public class MailCaptureClientTests
 
         // Handler that blocks until the cancellation token fires.
         var blockingHandler = new BlockingHttpHandler(cts.Token);
-        using var mc = new MailCaptureClient("mc_live_test",
+        using var mc = new MailCaptureClient("mc_testkey",
             httpClient: new HttpClient(blockingHandler));
 
         await Assert.ThrowsAnyAsync<OperationCanceledException>(() =>
@@ -270,7 +270,7 @@ public class MailCaptureClientTests
     [Fact]
     public async Task Get_ThrowsOnEmptyId()
     {
-        using var mc = new MailCaptureClient("mc_live_test");
+        using var mc = new MailCaptureClient("mc_testkey");
         await Assert.ThrowsAsync<ArgumentException>(() => mc.GetAsync(""));
     }
 
@@ -300,7 +300,7 @@ public class MailCaptureClientTests
     [Fact]
     public async Task Delete_ThrowsOnEmptyTag()
     {
-        using var mc = new MailCaptureClient("mc_live_test");
+        using var mc = new MailCaptureClient("mc_testkey");
         await Assert.ThrowsAsync<ArgumentException>(() => mc.DeleteAsync(""));
     }
 
@@ -321,14 +321,14 @@ public class MailCaptureClientTests
     [Fact]
     public void Inbox_ThrowsOnEmptyTag()
     {
-        using var mc = new MailCaptureClient("mc_live_test");
+        using var mc = new MailCaptureClient("mc_testkey");
         Assert.Throws<ArgumentException>(() => mc.Inbox(""));
     }
 
     [Fact]
     public void Inbox_ReturnsInboxWithCorrectTag()
     {
-        using var mc = new MailCaptureClient("mc_live_test");
+        using var mc = new MailCaptureClient("mc_testkey");
         var inbox = mc.Inbox("signup");
         Assert.Equal("signup", inbox.Tag);
     }
@@ -336,7 +336,7 @@ public class MailCaptureClientTests
     [Fact]
     public void Inbox_AddressThrowsBeforePing()
     {
-        using var mc = new MailCaptureClient("mc_live_test");
+        using var mc = new MailCaptureClient("mc_testkey");
         var inbox = mc.Inbox("signup");
         Assert.Throws<InvalidOperationException>(() => inbox.Address);
     }
@@ -371,7 +371,7 @@ public class MailCaptureClientTests
     [Fact]
     public async Task Request_ThrowsNetworkExceptionOnConnectionRefused()
     {
-        using var mc = new MailCaptureClient("mc_live_test",
+        using var mc = new MailCaptureClient("mc_testkey",
             new MailCaptureClientOptions { BaseUrl = "http://localhost:1" });
 
         var ex = await Assert.ThrowsAsync<MailCaptureNetworkException>(() => mc.PingAsync());

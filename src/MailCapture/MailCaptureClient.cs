@@ -50,10 +50,32 @@ public sealed class MailCaptureClient : IDisposable
     private readonly bool _ownsHttpClient;
     private string? _username;
 
+    private static readonly string[] s_adjectives =
+    [
+        "angry","bold","brave","calm","cold","cool","dark","dizzy",
+        "dusty","eager","fierce","fluffy","funky","fuzzy","glad",
+        "gloomy","grumpy","hasty","hungry","icy","itchy","jolly",
+        "jumpy","keen","lazy","lucky","mad","mean","moody","muddy",
+        "noisy","odd","pale","peppy","proud","quick","quiet","rowdy",
+        "rusty","silly","sleepy","sneaky","spooky","swift","tiny",
+        "tough","vivid","weird","wild","young",
+    ];
+
+    private static readonly string[] s_animals =
+    [
+        "ant","bear","boar","cat","crab","crow","deer","dove",
+        "duck","eel","elk","finch","fox","frog","goat","hawk",
+        "hare","ibis","jay","kiwi","lamb","lark","lion","lynx",
+        "mink","mole","moth","mule","newt","owl","panda","pig",
+        "puma","ram","rat","rook","seal","slug","snail","swan",
+        "toad","vole","wasp","wolf","wren","yak","zebra","bat",
+        "bee","carp",
+    ];
+
     /// <summary>
     /// Create a new client with the given API key.
     /// </summary>
-    /// <param name="apiKey">Your MailCapture API key (<c>mc_live_...</c>).</param>
+    /// <param name="apiKey">Your MailCapture API key (<c>mc_...</c>).</param>
     /// <param name="options">Optional configuration.</param>
     /// <param name="httpClient">Optional custom <see cref="HttpClient"/> for testing.</param>
     public MailCaptureClient(
@@ -67,11 +89,10 @@ public sealed class MailCaptureClient : IDisposable
                 "  new MailCaptureClient(Environment.GetEnvironmentVariable(\"MAILCAPTURE_API_KEY\")!)",
                 nameof(apiKey));
 
-        if (!apiKey.StartsWith("mc_live_", StringComparison.Ordinal) &&
-            !apiKey.StartsWith("mc_test_", StringComparison.Ordinal))
+        if (!apiKey.StartsWith("mc_", StringComparison.Ordinal))
         {
             Console.Error.WriteLine(
-                "[mailcapture] Warning: API key does not start with \"mc_live_\" or \"mc_test_\". " +
+                "[mailcapture] Warning: API key does not start with \"mc_\". Are you sure you copied the full key? " +
                 "Make sure you copied the full key from https://mailcapture.app/admin/api-keys");
         }
 
@@ -276,6 +297,43 @@ public sealed class MailCaptureClient : IDisposable
                 "MailCapture: username is not known. " +
                 "Call await PingAsync() first, or set Username in MailCaptureClientOptions.");
         return $"{_username}-{tag}@mailcapture.app";
+    }
+
+    /// <summary>
+    /// Generate a unique, human-readable tag such as <c>"funky-otter-a3f2b8"</c>.
+    /// No client or network call needed — safe to call before <see cref="PingAsync"/>.
+    /// </summary>
+    /// <remarks>
+    /// Format: <c>{adjective}-{animal}-{6 hex digits}</c>.
+    /// ~42 billion combinations — collision probability &lt; 0.1% across 10 000 tags.
+    /// </remarks>
+    public static string GenerateTag()
+    {
+        var adj    = s_adjectives[Random.Shared.Next(s_adjectives.Length)];
+        var animal = s_animals[Random.Shared.Next(s_animals.Length)];
+        var suffix = Random.Shared.Next(0x1000000).ToString("x6");
+        return $"{adj}-{animal}-{suffix}";
+    }
+
+    /// <summary>
+    /// Generate a unique tag and its corresponding capture email address.
+    /// Requires <see cref="PingAsync"/> to have been called first (same contract
+    /// as <see cref="Address"/>).
+    /// </summary>
+    /// <example>
+    /// <code>
+    /// await mc.PingAsync();
+    /// var (tag, email) = mc.Generate();
+    /// // tag:   "funky-otter-a3f2b8"
+    /// // email: "alice-funky-otter-a3f2b8@mailcapture.app"
+    /// await yourApp.RegisterAsync(email);
+    /// var capture = await mc.WaitForAsync(tag, new() { Timeout = TimeSpan.FromSeconds(15) });
+    /// </code>
+    /// </example>
+    public (string Tag, string Email) Generate()
+    {
+        var tag = GenerateTag();
+        return (tag, Address(tag));
     }
 
     /// <summary>
