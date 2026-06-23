@@ -4,6 +4,10 @@ Official C# / .NET SDK for [MailCapture](https://mailcapture.app) — a real ema
 
 Zero runtime dependencies. Framework agnostic — works with ASP.NET Core, Blazor, console apps, or any other .NET project.
 
+MailCapture captures emails sent by your application during testing. Give each test a unique address, trigger your email flow, then use this SDK to retrieve and assert on what arrived — subject lines, body text, OTP codes, and more. No mock SMTP, no shared inbox, no polling.
+
+A MailCapture account is required — free and paid plans are available. [Sign up at mailcapture.app](https://mailcapture.app).
+
 ## Requirements
 
 - .NET 8+ (targets `net8.0`)
